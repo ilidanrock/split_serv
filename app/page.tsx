@@ -1,5 +1,5 @@
 import Image from "next/image";
-import RentUtilityCalc from "./components/rent-utility-calc";
+import RentUtilityCalc from "./components/ServiceBillCalculator";
 
 export default function Home() {
   return (
