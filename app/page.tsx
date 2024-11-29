@@ -2,13 +2,15 @@
 import { useState } from "react";
 import RentUtilityCalc from "./components/ServiceBillCalculator/ServiceBillCalculator";
 import KWhCalculatorMonth from "./components/kWhCalculatorMonth/kWhCalculatorMonth";
+import { CostosPorInquilino } from "./components/CostosPorInquilinos/CostosPorInquilinos";
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const components = [
     <KWhCalculatorMonth key={0} />,
-    <RentUtilityCalc key={1} />
+    <RentUtilityCalc key={1} />,
+    <CostosPorInquilino key={2} />
   ];
 
   const goToNext = () => {

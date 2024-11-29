@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useServiceBillCalculator } from "../../store/ServiceBillCalculator"
+import { useImportsCalculator } from "@/app/store/ImportsCalculator"
 
 export default function ServiceBillCalculator() {
   const { 
@@ -15,8 +15,10 @@ export default function ServiceBillCalculator() {
     lateFee,
     prevRounding,
     currentRounding,
-    results,
-    calculateCosts,
+    resultsBeforeIGV,
+    resultsOtherImports,
+    calculateOtherImports,
+    calculateImportsBeforeIGV,
     setFixedCharge,
     setInterest,
     setPublicLighting,
@@ -25,8 +27,8 @@ export default function ServiceBillCalculator() {
     setPrevRounding,
     setCurrentRounding,
     setRepMantLuz,
-    setResults // Asegúrate de que este setter esté disponible en el store
-  } = useServiceBillCalculator()
+    setResultsBeforeIGV, // Asegúrate de que este setter esté disponible en el store
+  } = useImportsCalculator()
 
   // Función para resetear los valores de los inputs y los resultados
   const resetValues = () => {
@@ -38,15 +40,11 @@ export default function ServiceBillCalculator() {
     setLateFee('')
     setPrevRounding('')
     setCurrentRounding('')
-    setResults({ 
+    setResultsBeforeIGV({ 
       electricity: 0,
       fixed: 0,
       interest: 0,
       lighting: 0,
-      law: 0,
-      late: 0,
-      prevRound: 0,
-      currentRound: 0,
       total: 0
     })
   }
@@ -125,7 +123,7 @@ export default function ServiceBillCalculator() {
               onChange={(e) => !isNaN(parseFloat(e.target.value)) && setLateFee(e.target.value)}
             />
           </div>
-          <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-col space-y-1.5">
             <Label htmlFor="prevRounding">Redondeo Mes Anterior (soles)</Label>
             <Input
               id="prevRounding"
@@ -133,10 +131,10 @@ export default function ServiceBillCalculator() {
               type="text"
               inputMode="numeric"
               value={prevRounding}
-              onChange={(e) => !isNaN(parseFloat(e.target.value)) && setPrevRounding(e.target.value)}
+              onChange={(e) => setPrevRounding(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col space-y-1.5">
+            </div>
+            <div className="flex flex-col space-y-1.5">
             <Label htmlFor="currentRounding">Redondeo Mes Actual (soles)</Label>
             <Input
               id="currentRounding"
@@ -144,27 +142,43 @@ export default function ServiceBillCalculator() {
               inputMode="numeric"
               placeholder="Ingrese soles"
               value={currentRounding}
-              onChange={(e) => !isNaN(parseFloat(e.target.value)) && setCurrentRounding(e.target.value)}
+              onChange={(e) => setCurrentRounding(e.target.value)}
             />
-          </div>
+            </div>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4">
-        <Button onClick={calculateCosts}>Calcular Costos</Button>
-        {results.total > 0 && (
+        <Button onClick={() => {
+          calculateImportsBeforeIGV()
+          calculateOtherImports() 
+          }}>Calcular Imports</Button>
+        {resultsBeforeIGV.total > 0 && (
           <div className="w-full text-left">
             <p className="font-semibold">Resultados:</p>
-            <p>Costo de electricidad: S/. {results.electricity.toFixed(2)}</p>
-            <p>Cargo fijo: S/. {results.fixed.toFixed(2)}</p>
-            <p>Interés compensatorio: S/. {results.interest.toFixed(2)}</p>
-            <p>Alumbrado público: S/. {results.lighting.toFixed(2)}</p>
-            <p>Aporte Ley N° 28749: S/. {results.law.toFixed(2)}</p>
+            <p>Costo de electricidad: S/. {resultsBeforeIGV.electricity.toFixed(2)}</p>
+            <p>Cargo fijo: S/. {resultsBeforeIGV.fixed.toFixed(2)}</p>
+            <p>Interés compensatorio: S/. {resultsBeforeIGV.interest.toFixed(2)}</p>
+            <p>Alumbrado público: S/. {resultsBeforeIGV.lighting.toFixed(2)}</p>
+            {/* <p>Aporte Ley N° 28749: S/. {results.law.toFixed(2)}</p>
             <p>Recargo por mora: S/. {results.late.toFixed(2)}</p>
             <p>Redondeo Mes Anterior: S/. {results.prevRound.toFixed(2)}</p>
-            <p>Redondeo Mes Actual: S/. {results.currentRound.toFixed(2)}</p>
-            <p className="font-bold">Total: S/. {results.total.toFixed(2)}</p>
+            <p>Redondeo Mes Actual: S/. {results.currentRound.toFixed(2)}</p> */}
+            <p className="font-bold">Total before IGV: S/. {resultsBeforeIGV.total.toFixed(2)}</p>
           </div>
         )}
+        {
+          // Añade aquí los resultados de los otros importes
+          resultsOtherImports.total > 0 && (
+            <div className="w-full text-left">
+              <p className="font-semibold">Otros Importes:</p>
+              <p>Aporte Ley N° 28749: S/. {resultsOtherImports.law.toFixed(2)}</p>
+              <p>Recargo por mora: S/. {resultsOtherImports.lateFee.toFixed(2)}</p>
+              <p>Redondeo Mes Anterior: S/. {resultsOtherImports.prevRounding.toFixed(2)}</p>
+              <p>Redondeo Mes Actual: S/. {resultsOtherImports.currentRounding.toFixed(2)}</p>
+              <p className="font-bold">Total: S/. {resultsOtherImports.total.toFixed(2)}</p>
+            </div>
+          )
+        }
         {/* Botón de reset */}
         <Button variant="outline" onClick={resetValues}>Resetear</Button>
       </CardFooter>
