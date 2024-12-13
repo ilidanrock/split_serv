@@ -130,11 +130,6 @@ export const useKWhCalculatorMonth = create<State>((set, get) => ({
       costoAgua: costoAguaPorPersona,
     });
 
-    // const totalCostoLuz = costosPorInquilino.reduce(
-    //   (total, inquilino) => total + inquilino.costoLuz,
-    //   0
-    // );
-
 
     return costosPorInquilino;
   },
